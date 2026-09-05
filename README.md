@@ -108,6 +108,38 @@ Streamlit will open at `http://localhost:8501` and send requests to the backend 
 
 ## API
 
+The planner is clarification-first. Start with `POST /plans`; if required details
+are missing, answer the returned questions through the clarification endpoint.
+
+### `POST /plans`
+
+**Request body:**
+```json
+{
+   "question": "Plan a 5 day trip to Goa for two people",
+   "quick_draft": false
+}
+```
+
+The response includes a stable `session_id`, a `status`, validated requirements,
+and clarification questions when more information is needed.
+
+### `POST /plans/{session_id}/clarify`
+
+**Request body:**
+```json
+{
+   "answers": {
+      "budget": "1200",
+      "currency": "USD"
+   },
+   "quick_draft": false
+}
+```
+
+Use `/healthz` and `/readyz` for service checks. `POST /query` remains available
+as a compatibility endpoint for the original Streamlit client.
+
 ### `POST /query`
 
 **Request body:**
@@ -124,7 +156,9 @@ Streamlit will open at `http://localhost:8501` and send requests to the backend 
 }
 ```
 
-On error, returns HTTP 500 with `{"error": "<message>"}`.
+Validation errors return HTTP 422 and unknown sessions return HTTP 404. Provider
+failures are represented as warnings or degraded results once research execution
+is enabled; raw exceptions and credentials are not returned to clients.
 
 ## Notes
 

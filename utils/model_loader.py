@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from typing import Literal, Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from utils.config_loader import load_config
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
@@ -16,14 +16,13 @@ class ConfigLoader:
         return self.config[key]
 
 class ModelLoader(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     model_provider: Literal["groq", "openai"] = "groq"
     config: Optional[ConfigLoader] = Field(default=None, exclude=True)
 
     def model_post_init(self, __context: Any) -> None:
         self.config = ConfigLoader()
-    
-    class Config:
-        arbitrary_types_allowed = True
     
     def load_llm(self):
         """
