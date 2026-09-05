@@ -13,10 +13,11 @@ class WeatherForecastTool:
                 "q": place,
                 "appid": self.api_key,
             }
-            response = requests.get(url, params=params)
-            return response.json() if response.status_code == 200 else {}
-        except Exception as e:
-            raise e
+            response = requests.get(url, params=params, timeout=(3, 10))
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as error:
+            raise RuntimeError(f"weather request failed for {place}") from error
     
     def get_forecast_weather(self, place:str):
         """Get weather forecast of a place"""
@@ -28,7 +29,8 @@ class WeatherForecastTool:
                 "cnt": 10,
                 "units": "metric"
             }
-            response = requests.get(url, params=params)
-            return response.json() if response.status_code == 200 else {}
-        except Exception as e:
-            raise e
+            response = requests.get(url, params=params, timeout=(3, 10))
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as error:
+            raise RuntimeError(f"weather forecast request failed for {place}") from error
